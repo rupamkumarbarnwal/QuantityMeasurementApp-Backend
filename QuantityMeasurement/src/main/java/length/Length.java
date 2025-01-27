@@ -7,11 +7,6 @@ public class Length {
 
     private final double value;
     private final LengthUnit unit;
-
-    /*
-     * Enum representing supported units.
-     * Conversion factor is relative to base unit: INCHES
-     */
     public enum LengthUnit {
         FEET(12.0),
         INCHES(1.0);
@@ -64,5 +59,10 @@ public class Length {
     @Override
     public String toString() {
         return "Quantity(" + value + ", " + unit + ")";
+    }
+    public static void main(String[] args) {
+        Length length1 = new Length(1.0, LengthUnit.FEET);
+        Length length2 = new Length(12.0, LengthUnit.INCHES);
+        System.out.println("Are lengths equal? " + length1.equals(length2)); // Should print true
     }
 }
