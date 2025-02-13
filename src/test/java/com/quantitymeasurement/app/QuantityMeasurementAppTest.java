@@ -3,10 +3,10 @@ package com.quantitymeasurement.app;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
-public class QuantityMeasurementApp {
+
+public class QuantityMeasurementAppTest {
 
     public static void main(String[] args) {
-        SpringApplication.run(QuantityMeasurementApp.class, args);
+        SpringApplication.run(QuantityMeasurementAppTest.class, args);
     }
 }
