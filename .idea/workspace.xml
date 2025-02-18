@@ -5,16 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="92f6b7d3-f744-4ba3-baad-d9cdf0d4a768" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quantitymeasurement/app/controller/QuantityMeasurementController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quantitymeasurement/app/controller/QuantityMeasurementController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quantitymeasurement/app/entity/QuantityMeasurementEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quantitymeasurement/app/entity/QuantityMeasurementEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quantitymeasurement/app/repository/QuantityRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quantitymeasurement/app/repository/QuantityRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quantitymeasurement/app/service/IQuantityMeasurementService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quantitymeasurement/app/service/IQuantityMeasurementService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/quantitymeasurement/app/service/QuantityMeasurementService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/quantitymeasurement/app/service/QuantityMeasurementService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/db/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/db/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +85,7 @@
         <entry key="SpringBootApplicationConfigurationType">
           <value>
             <map>
-              <entry key="QuantityMeasurementApp" value="FAILED" />
+              <entry key="QuantityMeasurementApp" value="STOPPED" />
               <entry key="QuantityMeasurementApplication" value="FAILED" />
               <entry key="QuantityMeasurmentApplication" value="FAILED" />
             </map>
@@ -177,7 +168,7 @@
       <workItem from="1774846262282" duration="1737000" />
       <workItem from="1775127513833" duration="1222000" />
       <workItem from="1775197327477" duration="3226000" />
-      <workItem from="1775294441944" duration="564000" />
+      <workItem from="1775294441944" duration="995000" />
     </task>
     <servers />
   </component>
