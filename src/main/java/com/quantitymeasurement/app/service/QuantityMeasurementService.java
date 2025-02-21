@@ -5,8 +5,12 @@ import com.quantitymeasurement.app.dto.QuantityInputDTO;
 import com.quantitymeasurement.app.dto.ResponseDTO;
 import com.quantitymeasurement.app.entity.QuantityMeasurementEntity;
 import com.quantitymeasurement.app.repository.QuantityRepository;
+import com.quantitymeasurement.app.security.JwtUtil;
 import com.quantitymeasurement.app.units.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,6 +20,26 @@ public class QuantityMeasurementService implements IQuantityMeasurementService {
 
     @Autowired
     private QuantityRepository repository;
+
+    // Helper method to get current user ID from authentication context
+    private String getCurrentUserId() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication != null && authentication.isAuthenticated()) {
+                String user = authentication.getName();
+
+                System.out.println("🔥 Logged-in user: " + user);  // ✅ ADD THIS
+
+                return user;
+            }
+
+        } catch (Exception e) {
+            System.err.println("❌ Error getting user: " + e.getMessage());
+        }
+
+        return null;
+    }
 
     // 🔥 Build Quantity dynamically
     private Quantity<?> buildQuantity(double value, String unit, String type) {
@@ -263,19 +287,6 @@ public class QuantityMeasurementService implements IQuantityMeasurementService {
                 break;
             }
 
-            case "volume": {
-                Quantity<VolumeUnit> q = (Quantity<VolumeUnit>) buildQuantity(
-                        dto.getThisQuantityDTO().getValue(),
-                        dto.getThisQuantityDTO().getUnit(),
-                        type
-                );
-
-                VolumeUnit target = VolumeUnit.valueOf(targetUnit.toUpperCase());
-
-                response.setResultValue(q.convertTo(target).getValue());
-                break;
-            }
-
             case "temperature": {
                 Quantity<TemperatureUnit> q = (Quantity<TemperatureUnit>) buildQuantity(
                         dto.getThisQuantityDTO().getValue(),
@@ -289,6 +300,19 @@ public class QuantityMeasurementService implements IQuantityMeasurementService {
                 break;
             }
 
+            case "volume": {
+                Quantity<VolumeUnit> q = (Quantity<VolumeUnit>) buildQuantity(
+                        dto.getThisQuantityDTO().getValue(),
+                        dto.getThisQuantityDTO().getUnit(),
+                        type
+                );
+
+                VolumeUnit target = VolumeUnit.valueOf(targetUnit.toUpperCase());
+
+                response.setResultValue(q.convertTo(target).getValue());
+                break;
+            }
+
             default:
                 throw new RuntimeException("Invalid type");
         }
@@ -297,6 +321,8 @@ public class QuantityMeasurementService implements IQuantityMeasurementService {
 
         return response;
     }
+
+    // 🔥 Subtract
     @Override
     public ResponseDTO subtractQuantities(QuantityInputDTO dto) {
 
@@ -372,6 +398,8 @@ public class QuantityMeasurementService implements IQuantityMeasurementService {
 
         return response;
     }
+
+    // 🔥 Multiply
     @Override
     public ResponseDTO multiplyQuantities(QuantityInputDTO dto) {
 
@@ -451,7 +479,7 @@ public class QuantityMeasurementService implements IQuantityMeasurementService {
         return response;
     }
 
-    // 🔥 Common DB Save Method
+    // 🔥 Common DB Save Method - NOW CAPTURES USERID
     private void saveToDB(String operation, QuantityInputDTO dto, String result) {
 
         QuantityMeasurementEntity entity = new QuantityMeasurementEntity();
@@ -476,6 +504,16 @@ public class QuantityMeasurementService implements IQuantityMeasurementService {
 
         entity.setResult(result);
 
+        // NEW: Capture userId for tracking
+        String userId = getCurrentUserId();
+
+        System.out.println("💾 Saving userId: " + userId); // ✅ ADD THIS
+
+        entity.setUserId(userId);
+
+        // Set timestamp
+        entity.setTimestamp(System.currentTimeMillis());
+
         repository.save(entity);
     }
 
@@ -488,16 +526,185 @@ public class QuantityMeasurementService implements IQuantityMeasurementService {
     @Override
     public java.util.List<ResponseDTO> getHistoryByOperation(String operation) {
 
-        return  new ArrayList<>();
+        java.util.List<QuantityMeasurementEntity> list =
+                repository.findByOperationIgnoreCase(operation);
+
+        java.util.List<ResponseDTO> responseList = new ArrayList<>();
+
+        for (QuantityMeasurementEntity e : list) {
+            ResponseDTO dto = new ResponseDTO();
+
+            dto.setResultString(
+                    e.getOperand1() + " , " +
+                            e.getOperand2() + " → " +
+                            e.getResult()
+            );
+
+            responseList.add(dto);
+        }
+
+        return responseList;
     }
 
     @Override
     public java.util.List<ResponseDTO> getHistoryByType(String type) {
-        return new java.util.ArrayList<>();
+
+        java.util.List<QuantityMeasurementEntity> list = repository.findAll();
+
+        java.util.List<ResponseDTO> responseList = new ArrayList<>();
+
+        for (QuantityMeasurementEntity e : list) {
+
+            // simple filter (based on unit keywords)
+            if (e.getOperand1().toLowerCase().contains(type.toLowerCase())) {
+
+                ResponseDTO dto = new ResponseDTO();
+
+                dto.setResultString(
+                        e.getOperand1() + " , " +
+                                e.getOperand2() + " → " +
+                                e.getResult()
+                );
+
+                responseList.add(dto);
+            }
+        }
+
+        return responseList;
     }
 
     @Override
     public java.util.List<ResponseDTO> getErrorHistory() {
-        return new java.util.ArrayList<>();
+
+        java.util.List<QuantityMeasurementEntity> list = repository.findAll();
+
+        java.util.List<ResponseDTO> responseList = new ArrayList<>();
+
+        for (QuantityMeasurementEntity e : list) {
+
+            if (e.getResult().toLowerCase().contains("error")) {
+
+                ResponseDTO dto = new ResponseDTO();
+
+                dto.setResultString(
+                        e.getOperand1() + " , " +
+                                e.getOperand2() + " → " +
+                                e.getResult()
+                );
+
+                responseList.add(dto);
+            }
+        }
+
+        return responseList;
+    }
+
+
+    // ========== NEW: USER-SPECIFIC METHODS ==========
+
+    @Override
+    public long getUserOperationCount(String userId, String operation) {
+        return repository.countByOperationIgnoreCaseAndUserId(operation, userId);
+    }
+
+    @Override
+    public java.util.List<ResponseDTO> getUserHistoryByOperation(String userId, String operation) {
+
+        java.util.List<QuantityMeasurementEntity> list =
+                repository.findByUserIdAndOperationIgnoreCaseOrderByTimestampDesc(userId, operation);
+
+        java.util.List<ResponseDTO> responseList = new ArrayList<>();
+
+        for (QuantityMeasurementEntity e : list) {
+            ResponseDTO dto = new ResponseDTO();
+
+            dto.setResultString(
+                    e.getOperand1() + " , " +
+                            e.getOperand2() + " → " +
+                            e.getResult()
+            );
+
+            responseList.add(dto);
+        }
+
+        return responseList;
+    }
+
+    @Override
+    public java.util.List<ResponseDTO> getUserHistoryByType(String userId, String type) {
+
+        java.util.List<QuantityMeasurementEntity> list = repository.findByUserIdOrderByTimestampDesc(userId);
+
+        java.util.List<ResponseDTO> responseList = new ArrayList<>();
+
+        for (QuantityMeasurementEntity e : list) {
+
+            // simple filter (based on unit keywords)
+            if (e.getOperand1().toLowerCase().contains(type.toLowerCase())) {
+
+                ResponseDTO dto = new ResponseDTO();
+
+                dto.setResultString(
+                        e.getOperand1() + " , " +
+                                e.getOperand2() + " → " +
+                                e.getResult()
+                );
+
+                responseList.add(dto);
+            }
+        }
+
+        return responseList;
+    }
+
+    @Override
+    public java.util.List<ResponseDTO> getUserHistory(String userId) {
+
+        java.util.List<QuantityMeasurementEntity> list =
+                repository.findByUserIdOrderByTimestampDesc(userId);
+
+        java.util.List<ResponseDTO> responseList = new ArrayList<>();
+
+        for (QuantityMeasurementEntity e : list) {
+            ResponseDTO dto = new ResponseDTO();
+
+            dto.setResultString(
+                    e.getOperation() + " | " +
+                            e.getOperand1() + " , " +
+                            e.getOperand2() + " → " +
+                            e.getResult()
+            );
+
+            responseList.add(dto);
+        }
+
+        return responseList;
+    }
+
+    @Override
+    public java.util.List<ResponseDTO> getUserErrorHistory(String userId) {
+
+        java.util.List<QuantityMeasurementEntity> list =
+                repository.findByUserIdOrderByTimestampDesc(userId);
+
+        java.util.List<ResponseDTO> responseList = new ArrayList<>();
+
+        for (QuantityMeasurementEntity e : list) {
+
+            if (e.getResult().toLowerCase().contains("error")) {
+
+                ResponseDTO dto = new ResponseDTO();
+
+                dto.setResultString(
+                        e.getOperand1() + " , " +
+                                e.getOperand2() + " → " +
+                                e.getResult()
+                );
+
+                responseList.add(dto);
+            }
+        }
+
+        return responseList;
     }
 }

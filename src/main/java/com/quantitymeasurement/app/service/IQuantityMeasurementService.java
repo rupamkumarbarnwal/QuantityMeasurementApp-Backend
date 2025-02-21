@@ -26,4 +26,31 @@ public interface IQuantityMeasurementService {
     List<ResponseDTO> getHistoryByType(String type);
 
     List<ResponseDTO> getErrorHistory();
+
+
+    // NEW: User-specific methods
+    /**
+     * Get operation count for a specific user
+     */
+    long getUserOperationCount(String userId, String operation);
+
+    /**
+     * Get history for a specific user by operation
+     */
+    List<ResponseDTO> getUserHistoryByOperation(String userId, String operation);
+
+    /**
+     * Get history for a specific user by type (length, weight, etc.)
+     */
+    List<ResponseDTO> getUserHistoryByType(String userId, String type);
+
+    /**
+     * Get all history for a specific user
+     */
+    List<ResponseDTO> getUserHistory(String userId);
+
+    /**
+     * Get error history for a specific user
+     */
+    List<ResponseDTO> getUserErrorHistory(String userId);
 }
