@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.*;
 
+import java.util.Arrays;
+
 @Configuration
 public class CorsConfig {
 
@@ -11,8 +13,12 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.addAllowedOrigin("http://localhost:3000");
-        config.addAllowedOrigin("https://quantity-measurement-app-frontend-peach.vercel.app");
+        config.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:3000",
+                "https://quantity-measurement-app-frontend-peach.vercel.app",
+                "https://quantity-measurement-app-frontend-*.vercel.app", // Allow all vercel preview branches
+                "https://*.vercel.app" // Generic Vercel fallback
+        ));
 
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
